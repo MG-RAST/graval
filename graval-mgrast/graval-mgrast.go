@@ -10,15 +10,16 @@
 package main
 
 import (
-	"errors"
 	"github.com/MG-RAST/graval"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
+	"strconv"
 	"time"
+)
+
+const (
+	fileOne = "This is the first file available for download.\n\nBy Jàmes"
 )
 
 // A minimal driver for graval that queries the MG-RAST API. The authentication
@@ -33,8 +34,8 @@ func (driver *MemDriver) Bytes(path string) (bytes int) {
 	case "/one.txt":
 		bytes = len(fileOne)
 		break
-	case "/files/two.txt":
-		bytes = len(fileTwo)
+	case "/files/mgm4582802.3-050.1.gz":
+		bytes = 2522368548
 		break
 	default:
 		bytes = -1
@@ -54,7 +55,7 @@ func (driver *MemDriver) DirContents(path string) (files []os.FileInfo) {
 		files = append(files, graval.NewDirItem("files"))
 		files = append(files, graval.NewFileItem("one.txt", len(fileOne)))
 	case "/files":
-		files = append(files, graval.NewFileItem("two.txt", len(fileOne)))
+		files = append(files, graval.NewFileItem("mgm4582802.3-050.1.gz", 2522368548))
 	}
 	return files
 }
@@ -71,12 +72,16 @@ func (driver *MemDriver) Rename(fromPath string, toPath string) bool {
 func (driver *MemDriver) MakeDir(path string) bool {
 	return false
 }
-func (driver *MemDriver) GetFile(path string) (data string, err error) {
+func (driver *MemDriver) GetFile(path string) (data string, bytes string, dataIsUrl bool, err error) {	
 	switch path {
 	case "/one.txt":
-		data = fileOne
-	case "/files/two.txt":
-		data = fileTwo
+		data = "fileOne"
+		bytes = strconv.Itoa(len(fileOne))
+		dataIsUrl = false
+	case "/files/mgm4582802.3-050.1.gz":
+		data = "http://api.metagenomics.anl.gov//download/mgm4582802.3?file=050.1"
+		bytes = "2522368548"
+		dataIsUrl = true
 	}
 	return
 }
