@@ -5,6 +5,7 @@ import (
 	"github.com/jehiah/go-strftime"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -443,13 +444,27 @@ func (cmd commandRetr) RequireAuth() bool {
 
 func (cmd commandRetr) Execute(conn *ftpConn, param string) {
 	path := conn.buildPath(param)
-	data, err := conn.driver.GetFile(path)
-	if err == nil {
-		bytes := strconv.Itoa(len(data))
-		conn.writeMessage(150, "Data transfer starting "+bytes+" bytes")
-		conn.sendOutofbandData(data)
+	data, bytes, dataIsUrl, err := conn.driver.GetFile(path)
+	if dataIsUrl {
+		client := &http.Client{}
+		resp, err := client.Get(data)
+		if err == nil {
+			conn.writeMessage(150, "Data transfer starting "+bytes+" bytes")
+			resp.Write(conn.dataConn)
+			conn.dataConn.Close()
+			message := "Closing data connection, sent "+bytes+ " bytes"
+			conn.writeMessage(226, message)
+		} else {
+			conn.writeMessage(551, "File not available")
+		}
 	} else {
-		conn.writeMessage(551, "File not available")
+		if err == nil {
+			bytes := strconv.Itoa(len(data))
+			conn.writeMessage(150, "Data transfer starting "+bytes+" bytes")
+			conn.sendOutofbandData(data)
+		} else {
+			conn.writeMessage(551, "File not available")
+		}
 	}
 }
 

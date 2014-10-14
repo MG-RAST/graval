@@ -59,7 +59,7 @@ type FTPDriver interface {
 
 	// params  - path
 	// returns - a string containing the file data to send to the client
-	GetFile(string) (string, error)
+	GetFile(string) (string, string, bool, error)
 
 	// params  - desination path, an io.Reader containing the file data
 	// returns - true if the data was successfully persisted
