@@ -34,7 +34,7 @@ func (driver *MemDriver) Bytes(path string) (bytes int) {
 	case "/one.txt":
 		bytes = len(fileOne)
 		break
-	case "/files/mgm4582802.3-050.1.gz":
+	case "/files/mgm4582802.3-050.1":
 		bytes = 2522368548
 		break
 	default:
@@ -55,7 +55,7 @@ func (driver *MemDriver) DirContents(path string) (files []os.FileInfo) {
 		files = append(files, graval.NewDirItem("files"))
 		files = append(files, graval.NewFileItem("one.txt", len(fileOne)))
 	case "/files":
-		files = append(files, graval.NewFileItem("mgm4582802.3-050.1.gz", 2522368548))
+		files = append(files, graval.NewFileItem("mgm4582802.3-050.1", 2522368548))
 	}
 	return files
 }
@@ -78,7 +78,7 @@ func (driver *MemDriver) GetFile(path string) (data string, bytes string, dataIs
 		data = "fileOne"
 		bytes = strconv.Itoa(len(fileOne))
 		dataIsUrl = false
-	case "/files/mgm4582802.3-050.1.gz":
+	case "/files/mgm4582802.3-050.1":
 		data = "http://api.metagenomics.anl.gov//download/mgm4582802.3?file=050.1"
 		bytes = "2522368548"
 		dataIsUrl = true

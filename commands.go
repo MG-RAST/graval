@@ -450,7 +450,7 @@ func (cmd commandRetr) Execute(conn *ftpConn, param string) {
 		resp, err := client.Get(data)
 		if err == nil {
 			conn.writeMessage(150, "Data transfer starting "+bytes+" bytes")
-			resp.Write(conn.dataConn)
+			io.Copy(conn.dataConn, resp.Body)
 			conn.dataConn.Close()
 			message := "Closing data connection, sent "+bytes+ " bytes"
 			conn.writeMessage(226, message)
